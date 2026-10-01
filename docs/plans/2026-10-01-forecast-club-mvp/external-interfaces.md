@@ -14,5 +14,5 @@
 | E8 | Aiken | D3 的 C 選項：validator 檢查截止時間與狀態轉移 | 編譯器 v1.1.24（2026-09-26）、stdlib v4.0.0；支援 Plutus V3 | [aiken v1.1.24](https://github.com/aiken-lang/aiken/releases/tag/v1.1.24)；[stdlib v4.0.0](https://github.com/aiken-lang/stdlib/releases/tag/v4.0.0)；[Aiken validators](https://aiken-lang.org/language-tour/validators) | 查兩個 repo 的 releases |
 | E9 | Mesh SDK／Lucid Evolution | TypeScript 交易建構、簽署、CIP-30 錢包連接 | 兩者皆開源；Mesh 偏全端 dApp 與錢包元件，Lucid Evolution 偏交易建構 | [MeshJS](https://github.com/MeshJS/mesh)；[Lucid Evolution](https://anastasia-labs.github.io/lucid-evolution/) | 查兩個 repo 的 releases |
 | E10 | GitHub REST API | D6：以 release 是否存在判定「某專案是否發布下一版」 | 未驗證請求 60 requests/小時（以 IP 計），304 也計次；帶 token 5,000/小時；`GET /repos/{owner}/{repo}/releases` | [Rate limits for the REST API](https://docs.github.com/en/rest/using-the-rest-api/rate-limits-for-the-rest-api) | 重讀該頁；`curl -sI https://api.github.com/rate_limit` 看 header |
-| E11 | LLM 供應商 API | D8：營運者自跑的 AI 參賽者 | 費用依供應商與模型而定，本次未查價；屬付費 API，需擁有者授權 | 無（未查） | 步驟 2 查各供應商官方定價頁並記錄日期 |
+| E11 | LLM 供應商 API | D8：營運者自跑的 AI 參賽者 | 步驟 2 已查三模型價格與搜尋費用；屬付費 API，實際呼叫仍需擁有者授權 | 見 `spikes/ai-participants.md` | 步驟 2 查各供應商官方定價頁並記錄日期 |
 | E12 | OWASP Session Management Cheat Sheet | 網頁登入 session 的預設參數（F8） | — | [OWASP Session Management Cheat Sheet](https://cheatsheetseries.owasp.org/cheatsheets/Session_Management_Cheat_Sheet.html) | 重讀該頁 |

@@ -1,0 +1,70 @@
+{
+  "prompt_chars": 745,
+  "search_prompt_chars": 1056,
+  "no_search_input_tokens": [
+    387,
+    2000
+  ],
+  "search_input_tokens": [
+    4464,
+    10000
+  ],
+  "billed_output_tokens": [
+    500,
+    4000
+  ],
+  "monthly_calls": [
+    22,
+    261
+  ],
+  "models": [
+    {
+      "model": "GPT-5.6 Terra",
+      "input_usd_per_million": 2,
+      "output_usd_per_million": 12,
+      "search_usd_per_query": 0.01,
+      "source_url": "https://developers.openai.com/api/docs/models/gpt-5.6-terra",
+      "checked_at": "2026-10-01",
+      "no_search_usd": [
+        0.149028,
+        13.572
+      ],
+      "search_usd": [
+        0.548416,
+        22.968000000000004
+      ]
+    },
+    {
+      "model": "Claude Haiku 4.5",
+      "input_usd_per_million": 1,
+      "output_usd_per_million": 5,
+      "search_usd_per_query": 0.01,
+      "source_url": "https://platform.claude.com/docs/en/about-claude/pricing",
+      "checked_at": "2026-10-01",
+      "no_search_usd": [
+        0.063514,
+        5.742
+      ],
+      "search_usd": [
+        0.373208,
+        13.05
+      ]
+    },
+    {
+      "model": "Gemini 3.5 Flash",
+      "input_usd_per_million": 1.5,
+      "output_usd_per_million": 9,
+      "search_usd_per_query": 0.014,
+      "source_url": "https://ai.google.dev/gemini-api/docs/pricing",
+      "checked_at": "2026-10-01",
+      "no_search_usd": [
+        0.111771,
+        10.179
+      ],
+      "search_usd": [
+        0.554312,
+        20.619
+      ]
+    }
+  ]
+}
