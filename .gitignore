@@ -2,3 +2,9 @@
 .env
 .env.*
 !.env.example
+
+AGENTS.local.md
+pilot/raw/
+spikes/**/keys/
+__pycache__/
+*.py[cod]
