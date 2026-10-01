@@ -71,7 +71,7 @@ def build():
             hits = [r['version'] for r in source['records'] if opened.date().isoformat() <= r['date'] < deadline.date().isoformat()]
             row.update(question=f'Will {repo} have a stable release dated between {opened.date()} and {deadline.date()} in its official release history?', rule=f'Official source only; displayed release date >= {opened.date()} and < {deadline.date()}; stable numeric versions only, alpha/beta/RC excluded; source calendar dates govern, not an inferred UTC publication instant.', source_url=source['url'], method='manual', outcome='1' if hits else '0', notes=json.dumps({'pages': 0, 'matches': hits, 'reviewed_at': '2026-10-01', 'github_releases_empty': True}))
     with (HERE / 'question-resolution.csv').open('w', newline='') as f:
-        writer = csv.DictWriter(f, fieldnames=FIELDS); writer.writeheader(); writer.writerows(rows)
+        writer = csv.DictWriter(f, fieldnames=FIELDS, lineterminator="\n"); writer.writeheader(); writer.writerows(rows)
     print(json.dumps({'questions': len(rows), 'auto': sum(r['method']=='auto' for r in rows), 'ambiguous': sum(r['ambiguous']=='yes' for r in rows), 'yes': sum(r['outcome']=='1' for r in rows), 'no': sum(r['outcome']=='0' for r in rows), 'discovery_requests': evidence['requests'], 'requests_per_question_with_cache': evidence['requests']/len(rows), 'automatic_standalone_pages_per_question': sum(json.loads(r['notes'])['pages'] for r in rows if r['method']=='auto')/sum(r['method']=='auto' for r in rows)}))
 
 
