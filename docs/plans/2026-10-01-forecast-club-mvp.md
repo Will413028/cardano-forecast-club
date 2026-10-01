@@ -6,6 +6,10 @@
 
 **附件：** 同名目錄 `2026-10-01-forecast-club-mvp/`——`requirements.md`（需求清單，來源逐句編號）、`nfr.md`（非功能需求）、`external-interfaces.md`（外部介面）、`precedents-and-risks.md`（既有先例與產品風險）、`check_plan.py`（本計畫的一次性檢查腳本，只檢查這四份附件與計畫本身）；spike 與試辦的摘要放子目錄 `spikes/`，不在檢查範圍。引用的 `README.md`、`AGENTS.md` 快照為初始 commit `82112c6`（2026-10-01）。
 
+## 執行作用域調整
+
+Will 已要求本 session 完成所有 MVP 功能，不再逐項詢問授權，先跳過錢包、地址、faucet、帳號與部署設定。本次跨步驟連續實作；步驟 4、5 的實際鏈上量測與步驟 13 的 Preprod 演練延後至設定到位。實作採計畫建議的 D3-A、D4-B、D9-A、D12-A，D2 採 email magic link（本機郵件為開發預覽）；這些是 agent 的可推翻實作預設，不偽記為 Will 拍板。CIP-8 參與者簽章與 validator 不列入此批產品功能。正式網路與外部帳號的驗收必須另報，不能以 local ledger 代替。
+
 ## 全域約束與完成定義（暫代主計畫）
 
 - 範圍限制：不做收款、分潤、預約；Token 發行、NFT、下注、交易、加密貨幣獎金不作為產品核心（`requirements.md` N1、N2；N1 的用詞衝突見 D11）。
@@ -50,7 +54,7 @@
 | I5 外部結果由營運者依事先約定的來源判定，判定紀錄本身公開並承諾；介面不宣稱鏈判定結果 | `resolveQuestion`、`voidQuestion`；判定紀錄的承諾（`anchorJob`）；`apps/web` 的驗證邊界文案；`README.md` 的 Verification boundaries 段 | D7（判定者與爭議流程） |
 | I6 AI 參賽者的標籤與模型名稱是自我申報，不宣稱證明 | 參與者資料的 `kind` 欄位；`apps/web` 的參與者標示；Agent API 文件 | 無 |
 | I7 鏈上只放雜湊、Merkle root 與格式版本號，不放個資或預測明文；主網上的承諾不可撤回 | `packages/core` 的 `canonicalize`；`packages/chain` 的 `buildAnchorTx`；`exportRound`（明文只在公開資料，不上鏈） | D3-B（參與者自送交易）、D3-D（不上鏈，整條不適用）、D2-B（葉節點加入簽章） |
-| I8 承諾格式帶版本號；已承諾到 D9 選定網路的版本不得改變語意（本機 devnet 階段可直接改版） | `packages/core` 的 `ANCHOR_FORMAT_VERSION`、`canonicalize`；`verifyRound` 與 `verifier-ref/` 依版本號選擇解析方式 | D3-D（不上鏈）、D2-B、D4-C（格式改變時升版） |
+| I8 承諾格式帶版本號；已承諾到 D9 選定網路的版本不得改變語意（本機 devnet 階段可直接改版） | `packages/core` 的 `FORMAT_VERSION`、`canonicalize`；`verifyRound` 與 `verifier-ref/` 依版本號選擇解析方式 | D3-D（不上鏈）、D2-B、D4-C（格式改變時升版） |
 | I9 營運者錢包私鑰不進版控、不寫進 log | `packages/chain` 的簽署器（只從環境變數或本機金鑰檔讀）；`.gitignore`；CI 的 secret scan（步驟 12） | D3-B（營運者不再簽承諾交易時範圍縮小） |
 | I10 D4 選 B 或 C 時：截止前任何公開介面都讀不到他人的機率 | `apps/server` 的公開讀取 API；`exportRound`（只匯出已截止輪次）；`apps/web` 的題目頁；試辦期間的公開檔案（步驟 3） | D4（選 A 時整條不適用） |
 
@@ -116,16 +120,16 @@
   - 停止條件：Aiken 需要安裝而未獲授權 → 停下等授權。
   - 需要人做的事：授權安裝 Aiken 編譯器（若未安裝）。
 - [ ] **6. Walking skeleton**（被擋於：D1、D2、D3、D4、D5、D10、D12、步驟 0、步驟 3（D1 選 A 時需達門檻）、步驟 4、步驟 5（D3 選 C 時））
-  - 範圍：依 D12 建 workspace 與預計模組，並以版本鎖定檔固定執行環境版本（本機目前是 Node `v25.9.0`）；`Makefile` 的 `check` 目標跑 format、lint、typecheck、單元測試與 `e2e-devnet`（啟動 Yaci DevKit 容器）；GitHub Actions `ci.yml` 在 push 到 `main` 時跑 `make check`。接通最薄的一條端到端路徑 `scripts/e2e-round.ts`：fixture 題目 → 一位 fixture 人類與一位 fixture AI 經 server API 各交一筆預測 → `closeRound` → 依 D3 承諾到 devnet → 依 fixture 來源判定 → 依 D5 計分 → `exportRound` 匯出 → `verifyRound` 只讀匯出檔與 devnet 重算，與 server 的成績一致；`docs/verification.md` 初版附 golden vectors（輸入事件、期望 Merkle root、期望分數）。指令跑過後更新 `README.md` 的 Development 段與 `AGENTS.md`（S21）。
+  - 範圍：依 D12 建 workspace 與預計模組，並以版本鎖定檔固定執行環境版本（版本鎖定 Node 24 LTS）；`Makefile` 的 `check` 目標跑 format、lint、typecheck、單元測試與 `e2e-devnet`（啟動 Yaci DevKit 容器）；GitHub Actions `ci.yml` 在 push 到 `main` 時跑 `make check`。接通最薄的一條端到端路徑 `scripts/e2e-round.ts`：fixture 題目 → 一位 fixture 人類與一位 fixture AI 經 server API 各交一筆預測 → `closeRound` → 依 D3 承諾到 devnet → 依 fixture 來源判定 → 依 D5 計分 → `exportRound` 匯出 → `verifyRound` 只讀匯出檔與 devnet 重算，與 server 的成績一致；`docs/verification.md` 初版附 golden vectors（輸入事件、期望 Merkle root、期望分數）。指令跑過後更新 `README.md` 的 Development 段與 `AGENTS.md`（S21）。
   - 消費端：無（repo 尚無程式碼）。完成後在步驟 7–13 的消費端指令補上實際路徑。
-  - 不能動：`README.md` 與 `AGENTS.md` 的範圍與驗證邊界敘述（只能補 Development 段與指令）；承諾格式從第一版就帶 `ANCHOR_FORMAT_VERSION`（I8）。
+  - 不能動：`README.md` 與 `AGENTS.md` 的範圍與驗證邊界敘述（只能補 Development 段與指令）；承諾格式從第一版就帶 `FORMAT_VERSION`（I8）。
   - 驗收：`make check` 本機通過；GitHub Actions 的 `check` job 結論為 success。mutation（各自都要讓 `make check` 失敗）：(1) 把匯出檔中一筆預測的機率改掉，`verifyRound` 要回報不一致並以非零結束；(2) 讓 `merkleRoot` 少算一筆事件；(3) 讓 `submitForecast` 接受截止後的預測；(4) 在 `scoreForecasts` 把結果代入改成 `1 - outcome`。
   - 停止條件：Yaci DevKit 無法在 GitHub Actions 上執行 → 停下回報（替代方案是 Mesh 的 emulator，屬於驗收方式的改變，交擁有者決定）；D3 的結論在 devnet 上無法實作 → 停下回報。
   - 需要人做的事：授權 commit 與 push；確認 GitHub Actions 已啟用。
 - [ ] **7. 切片：題目發布與判定規則承諾**（被擋於：D6、步驟 6）
   - 範圍：營運者以 server 的 admin CLI 建立一週的題目批次（題型與來源依 D6）；`publishQuestion` 先把規則的雜湊承諾上鏈，確認後才開放提交（I4）；`apps/web` 的題目列表與題目頁顯示題目、截止時間、判定規則與來源。滿足 R1、R10、R16、R18。
-  - 消費端：`rg -n "publishQuestion|anchorRules|QuestionSchema" apps packages scripts docs`
-  - 不能動：已承諾到 D9 選定網路的格式語意（I8；本機 devnet 階段改格式要升 `ANCHOR_FORMAT_VERSION` 並更新 golden vectors）；`verifyRound` 的既有檢查。
+  - 消費端：`rg -n "publish|enqueue|questionInput" apps packages scripts docs`
+  - 不能動：已承諾到 D9 選定網路的格式語意（I8；本機 devnet 階段改格式要升 `FORMAT_VERSION` 並更新 golden vectors）；`verifyRound` 的既有檢查。
   - 驗收：`make check` 通過；e2e 新增「題目從建立到開放」的路徑。mutation：(1) 讓 `publishQuestion` 跳過規則承諾直接開放，e2e 要失敗；(2) 開放後改規則文字，`verifyRound` 要回報規則雜湊不符。
   - 停止條件：D6 的判定來源需要帶 token 的 API → 停下回報。
 - [ ] **8. 切片：人類參與者提交與修改預測**（被擋於：D2、D4、D10、步驟 7）
@@ -137,26 +141,26 @@
   - 需要人做的事：註冊 OAuth app 或寄信服務（依 D2）。
 - [ ] **9. 切片：AI 參賽者**（被擋於：D2、D8、步驟 2、步驟 7）
   - 範圍：依 D8 開放外部 Agent 以 API 提交（每個 Agent 一把 token，可撤銷）及／或營運者 baseline runner；AI 標籤顯示為自我申報（I6）；Agent API 文件。滿足 R8。
-  - 消費端：`rg -n "agentToken|submitForecast|participantKind|baselineRunner" apps packages scripts docs`
+  - 消費端：`rg -n "agent_tokens|submitForecast|participantId|runBaseline" apps packages scripts docs`
   - 不能動：`submitForecast` 的截止規則（I1）與事件格式；人類與 AI 走同一條提交路徑。
   - 驗收：`make check` 通過；mutation：(1) Agent A 的 token 能替 Agent B 提交，測試要失敗；(2) 截止後的 Agent 提交被接受，測試要失敗；(3) baseline runner 在測試中呼叫真實付費 API（應只用替身），測試要失敗。
   - 停止條件：baseline 每月費用估計超過 D8 訂的上限 → 停下回報。
   - 需要人做的事：baseline 的模型 API key 與費用授權（D8 含 B 時）。
 - [ ] **10. 切片：判定、爭議、計分與戰績**（被擋於：D5、D6、D7、步驟 8、步驟 9）
   - 範圍：`resolveQuestion`（自動來源與人工判定並附證據）、依 D7 的爭議期與 `voidQuestion`；判定紀錄承諾上鏈（I5）；`scoreForecasts` 依 D5；個人戰績頁、可分享連結、人類 vs AI 比較；驗證邊界文案（R6）。滿足 R3–R6、R13、R15、R19–R21。
-  - 消費端：`rg -n "resolveQuestion|voidQuestion|scoreForecasts|anchorResolution|leaderboard" apps packages scripts docs`
+  - 消費端：`rg -n "resolveQuestion|commitResolution|finalize|scoreForecasts|leaderboard" apps packages scripts docs`
   - 不能動：`scoreForecasts` 是 server 與 verifier 共用的唯一實作（I2）；已承諾的判定只能由 D7 規定的爭議紀錄改變。
   - 驗收：`make check` 通過；`scoreForecasts` 有黃金測試（固定輸入、手算的期望分數）；mutation：(1) 作廢題仍計分，測試要失敗；(2) 判定在承諾後被改且沒有爭議紀錄，`verifyRound` 要失敗；(3) 計分公式改成 `abs(p - o)`，黃金測試要失敗；(4) 移除頁面上的驗證邊界文案，頁面快照測試要失敗。
   - 停止條件：D5 的規則在邊界情況（未提交時段、作廢、機率 0 或 1）有規格沒寫的分歧 → 停下回報，不自行決定。
 - [ ] **11. 切片：公開資料與獨立 verifier**（被擋於：D10、步驟 10）
   - 範圍：完成 `docs/verification.md`（匯出格式、`canonicalize` 規則、Merkle 建法、承諾 metadata 格式、計分公式與邊界規則、golden vectors），讓第三方不讀程式碼也能實作 verifier；依規格以與產品不同的語言另寫 `verifier-ref/`（不 import 產品程式碼），兩個 verifier 都要通過 golden vectors；依 D10 的公開範圍提供匯出檔。`make verify-clean` 的定義：以只含 `verifier-ref/` 與其相依套件的容器映像執行，輸入是掛載到 `/data` 的匯出檔，鏈資料在 CI 取自同一 job 啟動的 Yaci DevKit、在步驟 13 取自 Koios public tier；容器內沒有資料庫、沒有產品原始碼。滿足 R9、R22。
-  - 消費端：`rg -n "exportRound|canonicalize|merkleRoot|verifyRound|ANCHOR_FORMAT_VERSION" apps packages scripts docs verifier-ref`
+  - 消費端：`rg -n "exportRound|canonicalize|merkleRoot|verifyRound|FORMAT_VERSION" apps packages scripts docs verifier-ref`
   - 不能動：已承諾資料的格式語意（I8）；`scoreForecasts` 的結果。
   - 驗收：`make check` 與 `make verify-clean` 通過，`verifier-ref/` 與 `verifyRound` 對 golden vectors 與 devnet 演練資料的輸出相同；mutation：(1) 竄改匯出檔的四種方式——調換兩筆事件的時間順序、刪掉一筆預測、改一筆機率、改一題規則文字——各自都要讓兩個 verifier 以非零結束；(2) 把產品 `scoreForecasts` 的公式改成 `abs(p - o)`，`verifier-ref/` 與排行榜的比對要失敗（證明重算不依賴產品程式碼）；F2：在本機以 500 位參與者 × 20 題的合成資料跑 `verifier-ref/` ≤ 60 秒（`time` 的輸出與機器規格記入進度表）。
   - 停止條件：D10 的公開範圍讓第三方無法重算某類成績 → 停下回報（這表示 D10 與 I2 衝突）。
 - [ ] **12. 硬化：金鑰、重試、監看與對抗測試**（被擋於：D2、步驟 11）
   - 範圍：營運者簽署金鑰只從環境變數或本機金鑰檔讀（I9），CI 加 secret scan；`anchorJob` 冪等（同一輪重跑只會有一筆有效承諾）、交易未被收進區塊時重送；錨定與判定失敗的結構化 log 與 `make ops-check`（F9）；依 D2 的防刷措施（R26）；在 Preprod 量測 F1。對抗測試清單與擋住它的機制：截止後送件（`submitForecast`、I1）、竄改歷史（`forecast_events` 只增、verifier）、重放或盜用 Agent token（token 綁定 Agent 與撤銷）、同一人多帳號（依 D2 的帳號限制；D2 選的方式擋不住時列為「本階段不防」）。本階段不防、只在文案與匯出資料揭露的：營運者在承諾前遺漏某筆預測（D3-A 的已知限制）、冒用 AI 標籤（I6，自我申報）。滿足 R25–R27。
-  - 消費端：`rg -n "buildAnchorTx|submitAnchor|anchorJob|OPERATOR_SIGNING_KEY|rateLimit" apps packages scripts .github`
+  - 消費端：`rg -n "prepare|anchorJob|OPERATOR_KEY_FILE|counts" apps packages scripts .github`
   - 不能動：承諾格式語意；`forecast_events` 只增不改。
   - 驗收：`make check` 與 `make ops-check` 通過；mutation：(1) 在測試 fixture 放一把假的私鑰字串，secret scan 要失敗；(2) 測試模擬 `anchorJob` 在送出後、記錄前中斷再重跑，期望同一輪只有一筆承諾；拿掉 `anchorJob` 送交易前查詢鏈上既有承諾的檢查後，該測試要失敗；(3) 對抗清單中「有機制」的每一項各有一個測試，移除對應機制後該測試要失敗；「本階段不防」的兩項，頁面與 `docs/verification.md` 的揭露文案有快照測試，刪掉文案後測試要失敗；F1 的量測（5 次中位數）記入進度表。
   - 停止條件：F1 在 Preprod 量測超過 60 分鐘 → 停下回報，F1 門檻交擁有者重訂。
@@ -261,17 +265,17 @@
 | 1 題目與判定來源 spike | 完成 | 40 題欄位檢查；32/40 自動、0/40 模糊、1 request/自動題重算；時間邊界與 draft/prerelease fixture 通過；摘要已複製到附件 | 無（窄樣本的限制見摘要） | 見 git log -- spikes/ |
 | 2 AI 參賽者成本 spike | 完成 | 三模型官方價格、查詢日期與公式齊全；離線重算 JSON 與提示詞；摘要複本一致 | 未呼叫模型；token 用量、品質與帳號權限未實測（本步驟不要求） | 見 git log -- spikes/ai-participants.md |
 | 3 手動試辦 | 不執行（D1-B） | 不適用 | 不適用 | |
-| 4 鏈上承諾 spike | 進行中 | Docker 可用、Koios Preprod tip 無 key 查詢成功；SDK 與 DevKit 版本已核對 | 交易、CIP-8 與 mutation 尚未跑：等待工具下載與測試金鑰授權、Preprod faucet 資金 | 見 git log -- spikes/anchoring-setup.md |
-| 5 validator spike | 未開始 | | | |
-| 6 Walking skeleton | 未開始 | | | |
-| 7 題目發布 | 未開始 | | | |
-| 8 人類提交 | 未開始 | | | |
-| 9 AI 參賽者 | 未開始 | | | |
-| 10 判定與計分 | 未開始 | | | |
-| 11 公開資料與 verifier | 未開始 | | | |
-| 12 硬化 | 未開始 | | | |
-| 13 內部演練 | 未開始 | | | |
-| 14 收尾 | 未開始 | | | |
+| 4 鏈上承諾 spike | 進行中 | Docker 可用、Koios Preprod tip 無 key 查詢成功；SDK 與 DevKit 版本已核對 | 交易、CIP-8 與 mutation 尚未跑：依本 session 指示延後錢包、地址與 Preprod 設定 | 見 git log -- spikes/anchoring-setup.md |
+| 5 validator spike | 不執行（實作預設 D3-A） | 不使用 validator | 若重新採 D3-C 再執行 | |
+| 6 Walking skeleton | 進行中 | TypeScript 編譯、Vite build 與 8 項核心/API 測試通過過一輪；新增驗收正在跑 | 最終驗收、瀏覽器 QA 與 CI 尚未完成；外部設定依指示延後 | 未提交 |
+| 7 題目發布 | 進行中 | 規則先承諾、公開後規則不可改的 DB/API 測試通過 | 最終驗收、瀏覽器 QA 與 CI 尚未完成；外部設定依指示延後 | 未提交 |
+| 8 人類提交 | 進行中 | 同意、隱藏他人機率、更新只增、截止與冪等測試通過 | 最終驗收、瀏覽器 QA 與 CI 尚未完成；外部設定依指示延後 | 未提交 |
+| 9 AI 參賽者 | 進行中 | Agent 所有權與撤銷、月預算原子上限、baseline fixture 測試通過 | 最終驗收、瀏覽器 QA 與 CI 尚未完成；外部設定依指示延後 | 未提交 |
+| 10 判定與計分 | 進行中 | 更正歷史、爭議、7 日終結、void 與 Brier 測試通過 | 最終驗收、瀏覽器 QA 與 CI 尚未完成；外部設定依指示延後 | 未提交 |
+| 11 公開資料與 verifier | 進行中 | 兩種 verifier 成績一致；4 種資料 mutation 被拒；隔離無網路容器成功；500×20 筆獨立驗證 2.679 秒 | 最終驗收、瀏覽器 QA 與 CI 尚未完成；外部設定依指示延後 | 未提交 |
+| 12 硬化 | 進行中 | 歷史/規則/承諾不可改、token 撤銷、重試與預算測試通過；fake signing key 掃描被拒 | 最終驗收、瀏覽器 QA 與 CI 尚未完成；外部設定依指示延後 | 未提交 |
+| 13 內部演練 | 進行中 | 3 人類＋3 Agent＋12 次更新＋1 void 的 local 演練成功；Python 與排行榜相同 | 最終驗收、瀏覽器 QA 與 CI 尚未完成；外部設定依指示延後 | 未提交 |
+| 14 收尾 | 進行中 | 獨立設計審查兩項發現已改：鏈讀取去 DB 相依、每天承諾 cadence | 最終驗收、瀏覽器 QA 與 CI 尚未完成；外部設定依指示延後 | 未提交 |
 
 ## 壓力測試紀錄
 

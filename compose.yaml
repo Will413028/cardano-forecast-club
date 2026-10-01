@@ -1,0 +1,16 @@
+services:
+  db:
+    image: postgres:17-alpine
+    ports: ["127.0.0.1:54329:5432"]
+    environment:
+      POSTGRES_DB: forecast
+      POSTGRES_USER: forecast
+      POSTGRES_PASSWORD: forecast-local-only
+    volumes: ["forecast-db:/var/lib/postgresql/data"]
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U forecast"]
+      interval: 2s
+      timeout: 2s
+      retries: 30
+volumes:
+  forecast-db:

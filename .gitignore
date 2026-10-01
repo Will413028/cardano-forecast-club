@@ -8,3 +8,10 @@ pilot/raw/
 spikes/**/keys/
 __pycache__/
 *.py[cod]
+
+node_modules/
+dist/
+var/
+playwright-report/
+test-results/
+*.tsbuildinfo

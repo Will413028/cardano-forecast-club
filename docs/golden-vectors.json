@@ -1,0 +1,200 @@
+{
+  "canonical": [
+    {
+      "value": null,
+      "canonical": "null",
+      "sha256": "74234e98afe7498fb5daf1f36ac2d78acc339464f950703b8c019892f982b90b"
+    },
+    {
+      "value": {
+        "z": 2,
+        "a": "\u9810\u6e2c"
+      },
+      "canonical": "{\"a\":\"\u9810\u6e2c\",\"z\":2}",
+      "sha256": "1892175b422763bdff7158410f97f8b93ff71436b4bb1938b6f02bd283e6f662"
+    },
+    {
+      "value": [
+        {
+          "id": "a",
+          "p": 0
+        },
+        {
+          "id": "b",
+          "p": 1000000
+        },
+        {
+          "id": "c",
+          "p": 500000
+        }
+      ],
+      "canonical": "[{\"id\":\"a\",\"p\":0},{\"id\":\"b\",\"p\":1000000},{\"id\":\"c\",\"p\":500000}]",
+      "sha256": "522b6f9c970021717b30b155dcdd557a172e6677111be8224a29fe9533192bf1"
+    },
+    {
+      "value": "\ud800",
+      "canonical": "\"\\ud800\"",
+      "sha256": "8c0c59dd0d275aadcd462a5fe12eb352cbdfeaf961eae4f85a4660521df7d2f5"
+    }
+  ],
+  "merkle": [
+    {
+      "records": [],
+      "root": "dbc1b4c900ffe48d575b5da5c638040125f65db0fe3e24494b76ea986457d986"
+    },
+    {
+      "records": [
+        null
+      ],
+      "root": "b018d21dce8b6a938aecc2bb5ffdef6c1cd0d821f0f282c0eb96a08a36ef7bfe"
+    },
+    {
+      "records": [
+        null,
+        {
+          "z": 2,
+          "a": "\u9810\u6e2c"
+        }
+      ],
+      "root": "3a2ca9d39a739618cd03ea59a2334226a0437de222ce0d349507d2cd55e48e92"
+    },
+    {
+      "records": [
+        null,
+        {
+          "z": 2,
+          "a": "\u9810\u6e2c"
+        },
+        [
+          {
+            "id": "a",
+            "p": 0
+          },
+          {
+            "id": "b",
+            "p": 1000000
+          },
+          {
+            "id": "c",
+            "p": 500000
+          }
+        ]
+      ],
+      "root": "ea085519599badb88e3357f0b540ee0fd327fe52fbd636a39bb0a084afc706de"
+    }
+  ],
+  "scoring": [
+    {
+      "name": "last_pre_deadline",
+      "questions": [
+        {
+          "record": {
+            "id": "q",
+            "deadline": "2026-10-01T01:00:00.000Z"
+          },
+          "status": "resolved",
+          "resolution": {
+            "outcome": 1
+          }
+        }
+      ],
+      "events": [
+        {
+          "id": "e1",
+          "seq": 1,
+          "questionId": "q",
+          "participantId": "p",
+          "nickname": "P",
+          "kind": "human",
+          "model": null,
+          "probabilityPPM": 200000,
+          "receivedAt": "2026-10-01T00:00:00.000Z"
+        },
+        {
+          "id": "e2",
+          "seq": 2,
+          "questionId": "q",
+          "participantId": "p",
+          "nickname": "P",
+          "kind": "human",
+          "model": null,
+          "probabilityPPM": 800000,
+          "receivedAt": "2026-10-01T00:30:00.000Z"
+        },
+        {
+          "id": "e3",
+          "seq": 3,
+          "questionId": "q",
+          "participantId": "p",
+          "nickname": "P",
+          "kind": "human",
+          "model": null,
+          "probabilityPPM": 0,
+          "receivedAt": "2026-10-01T01:00:00.000Z"
+        }
+      ],
+      "scores": [
+        {
+          "participantId": "p",
+          "nickname": "P",
+          "kind": "human",
+          "model": null,
+          "count": 1,
+          "totalSquaredError": 40000000000,
+          "scorePPM": 40000
+        }
+      ]
+    },
+    {
+      "name": "void_excluded",
+      "questions": [
+        {
+          "record": {
+            "id": "q",
+            "deadline": "2026-10-01T01:00:00.000Z"
+          },
+          "status": "void",
+          "resolution": {
+            "outcome": 1
+          }
+        }
+      ],
+      "events": [
+        {
+          "id": "e1",
+          "seq": 1,
+          "questionId": "q",
+          "participantId": "p",
+          "nickname": "P",
+          "kind": "human",
+          "model": null,
+          "probabilityPPM": 200000,
+          "receivedAt": "2026-10-01T00:00:00.000Z"
+        },
+        {
+          "id": "e2",
+          "seq": 2,
+          "questionId": "q",
+          "participantId": "p",
+          "nickname": "P",
+          "kind": "human",
+          "model": null,
+          "probabilityPPM": 800000,
+          "receivedAt": "2026-10-01T00:30:00.000Z"
+        },
+        {
+          "id": "e3",
+          "seq": 3,
+          "questionId": "q",
+          "participantId": "p",
+          "nickname": "P",
+          "kind": "human",
+          "model": null,
+          "probabilityPPM": 0,
+          "receivedAt": "2026-10-01T01:00:00.000Z"
+        }
+      ],
+      "scores": []
+    }
+  ]
+}
