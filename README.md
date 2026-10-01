@@ -4,7 +4,7 @@ Forecast short-term technology events, compare human and AI probabilities, and i
 
 ## Status
 
-Local MVP implementation with a React interface, Express API, PostgreSQL append-only forecast history, Brier scoring, public exports, and an independent Python verifier. Local end-to-end fixture rounds have passed verification. Final browser, CI, hardening and requirement audits are in progress; this is not a production deployment and user demand is unvalidated.
+Local MVP implementation with a React interface, Express API, PostgreSQL append-only forecast history, Brier scoring, public exports, and an independent Python verifier. Local end-to-end fixture rounds have passed verification. The 18-test check, 16 mutation gates, desktop/mobile browser workflows, independent container verification and GitHub Actions check job have passed. This is not a production deployment and user demand is unvalidated.
 
 Real Cardano Preprod transactions, wallet/address/faucet setup, model-provider accounts, SMTP delivery, and hosting configuration are deferred. Local commitments are explicitly labelled simulations and do not constitute blockchain timestamps.
 
@@ -38,7 +38,7 @@ make verify-clean
 - Finalized non-void questions contribute the last pre-deadline forecast to Brier scores. Profiles, participation counts, human/AI labels and share links expose public track records.
 - Public JSON includes rules, forecast versions, resolution history, finalizations and commitment references. The standalone Python verifier independently checks commitments and recomputes scores.
 
-See [verification format](docs/verification.md), [golden vectors](docs/golden-vectors.json), [implementation checkpoint](docs/implementation-status.md), and [MVP plan](docs/plans/2026-10-01-forecast-club-mvp.md).
+See [verification format](docs/verification.md), [golden vectors](docs/golden-vectors.json), [implementation checkpoint](docs/implementation-status.md), [requirement audit](docs/requirement-audit.md), and [MVP plan](docs/plans/2026-10-01-forecast-club-mvp.md).
 
 ## Boundaries
 

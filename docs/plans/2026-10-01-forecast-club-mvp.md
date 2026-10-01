@@ -119,46 +119,46 @@ Will 已要求本 session 完成所有 MVP 功能，不再逐項詢問授權，�
   - 驗收：`aiken check`（在 `spikes/validator/`）通過，包含兩個測試：截止前的交易通過、validity 上界超過截止的交易被拒；mutation——把比較運算子改成 `<=` 以外的錯誤方向，拒絕測試要失敗；`spikes/validator.md` 有執行單位、費用、min-UTxO 三個數字與量測指令。
   - 停止條件：Aiken 需要安裝而未獲授權 → 停下等授權。
   - 需要人做的事：授權安裝 Aiken 編譯器（若未安裝）。
-- [ ] **6. Walking skeleton**（被擋於：D1、D2、D3、D4、D5、D10、D12、步驟 0、步驟 3（D1 選 A 時需達門檻）、步驟 4、步驟 5（D3 選 C 時））
+- [x] **6. Walking skeleton**（被擋於：D1、D2、D3、D4、D5、D10、D12、步驟 0、步驟 3（D1 選 A 時需達門檻）、步驟 4、步驟 5（D3 選 C 時））
   - 範圍：依 D12 建 workspace 與預計模組，並以版本鎖定檔固定執行環境版本（版本鎖定 Node 24 LTS）；`Makefile` 的 `check` 目標跑 format、lint、typecheck、單元測試與 `e2e-devnet`（啟動 Yaci DevKit 容器）；GitHub Actions `ci.yml` 在 push 到 `main` 時跑 `make check`。接通最薄的一條端到端路徑 `scripts/e2e-round.ts`：fixture 題目 → 一位 fixture 人類與一位 fixture AI 經 server API 各交一筆預測 → `closeRound` → 依 D3 承諾到 devnet → 依 fixture 來源判定 → 依 D5 計分 → `exportRound` 匯出 → `verifyRound` 只讀匯出檔與 devnet 重算，與 server 的成績一致；`docs/verification.md` 初版附 golden vectors（輸入事件、期望 Merkle root、期望分數）。指令跑過後更新 `README.md` 的 Development 段與 `AGENTS.md`（S21）。
   - 消費端：無（repo 尚無程式碼）。完成後在步驟 7–13 的消費端指令補上實際路徑。
   - 不能動：`README.md` 與 `AGENTS.md` 的範圍與驗證邊界敘述（只能補 Development 段與指令）；承諾格式從第一版就帶 `FORMAT_VERSION`（I8）。
   - 驗收：`make check` 本機通過；GitHub Actions 的 `check` job 結論為 success。mutation（各自都要讓 `make check` 失敗）：(1) 把匯出檔中一筆預測的機率改掉，`verifyRound` 要回報不一致並以非零結束；(2) 讓 `merkleRoot` 少算一筆事件；(3) 讓 `submitForecast` 接受截止後的預測；(4) 在 `scoreForecasts` 把結果代入改成 `1 - outcome`。
   - 停止條件：Yaci DevKit 無法在 GitHub Actions 上執行 → 停下回報（替代方案是 Mesh 的 emulator，屬於驗收方式的改變，交擁有者決定）；D3 的結論在 devnet 上無法實作 → 停下回報。
   - 需要人做的事：授權 commit 與 push；確認 GitHub Actions 已啟用。
-- [ ] **7. 切片：題目發布與判定規則承諾**（被擋於：D6、步驟 6）
+- [x] **7. 切片：題目發布與判定規則承諾**（被擋於：D6、步驟 6）
   - 範圍：營運者以 server 的 admin CLI 建立一週的題目批次（題型與來源依 D6）；`publishQuestion` 先把規則的雜湊承諾上鏈，確認後才開放提交（I4）；`apps/web` 的題目列表與題目頁顯示題目、截止時間、判定規則與來源。滿足 R1、R10、R16、R18。
   - 消費端：`rg -n "publish|enqueue|questionInput" apps packages scripts docs`
   - 不能動：已承諾到 D9 選定網路的格式語意（I8；本機 devnet 階段改格式要升 `FORMAT_VERSION` 並更新 golden vectors）；`verifyRound` 的既有檢查。
   - 驗收：`make check` 通過；e2e 新增「題目從建立到開放」的路徑。mutation：(1) 讓 `publishQuestion` 跳過規則承諾直接開放，e2e 要失敗；(2) 開放後改規則文字，`verifyRound` 要回報規則雜湊不符。
   - 停止條件：D6 的判定來源需要帶 token 的 API → 停下回報。
-- [ ] **8. 切片：人類參與者提交與修改預測**（被擋於：D2、D4、D10、步驟 7）
+- [x] **8. 切片：人類參與者提交與修改預測**（被擋於：D2、D4、D10、步驟 7）
   - 範圍：依 D2 的登入方式；依 D4 的可見性提交與修改機率（機率範圍依 D5）；每次修改寫成新的 `forecast_events`（I3）；參加前取得 D10 規定的同意；session 依 F8。滿足 R2、R11、R12。
   - 消費端：`rg -n "submitForecast|forecast_events|ForecastEvent|session" apps packages scripts docs`
   - 不能動：`forecast_events` 只 INSERT；`scoreForecasts` 的介面。
   - 驗收：`make check` 通過；mutation：(1) 修改預測改成 UPDATE 舊列，歷史測試要失敗；(2) D4 選 B 或 C 時，截止前從公開 API 讀到他人機率，可見性測試要失敗；(3) 未同意 D10 條款即可提交，測試要失敗；(4) 登入後未更換 session id，測試要失敗。
   - 停止條件：D2 的登入方式需要註冊外部 OAuth app → 停下等擁有者註冊。
   - 需要人做的事：註冊 OAuth app 或寄信服務（依 D2）。
-- [ ] **9. 切片：AI 參賽者**（被擋於：D2、D8、步驟 2、步驟 7）
+- [x] **9. 切片：AI 參賽者**（被擋於：D2、D8、步驟 2、步驟 7）
   - 範圍：依 D8 開放外部 Agent 以 API 提交（每個 Agent 一把 token，可撤銷）及／或營運者 baseline runner；AI 標籤顯示為自我申報（I6）；Agent API 文件。滿足 R8。
   - 消費端：`rg -n "agent_tokens|submitForecast|participantId|runBaseline" apps packages scripts docs`
   - 不能動：`submitForecast` 的截止規則（I1）與事件格式；人類與 AI 走同一條提交路徑。
   - 驗收：`make check` 通過；mutation：(1) Agent A 的 token 能替 Agent B 提交，測試要失敗；(2) 截止後的 Agent 提交被接受，測試要失敗；(3) baseline runner 在測試中呼叫真實付費 API（應只用替身），測試要失敗。
   - 停止條件：baseline 每月費用估計超過 D8 訂的上限 → 停下回報。
   - 需要人做的事：baseline 的模型 API key 與費用授權（D8 含 B 時）。
-- [ ] **10. 切片：判定、爭議、計分與戰績**（被擋於：D5、D6、D7、步驟 8、步驟 9）
+- [x] **10. 切片：判定、爭議、計分與戰績**（被擋於：D5、D6、D7、步驟 8、步驟 9）
   - 範圍：`resolveQuestion`（自動來源與人工判定並附證據）、依 D7 的爭議期與 `voidQuestion`；判定紀錄承諾上鏈（I5）；`scoreForecasts` 依 D5；個人戰績頁、可分享連結、人類 vs AI 比較；驗證邊界文案（R6）。滿足 R3–R6、R13、R15、R19–R21。
   - 消費端：`rg -n "resolveQuestion|commitResolution|finalize|scoreForecasts|leaderboard" apps packages scripts docs`
   - 不能動：`scoreForecasts` 是 server 與 verifier 共用的唯一實作（I2）；已承諾的判定只能由 D7 規定的爭議紀錄改變。
   - 驗收：`make check` 通過；`scoreForecasts` 有黃金測試（固定輸入、手算的期望分數）；mutation：(1) 作廢題仍計分，測試要失敗；(2) 判定在承諾後被改且沒有爭議紀錄，`verifyRound` 要失敗；(3) 計分公式改成 `abs(p - o)`，黃金測試要失敗；(4) 移除頁面上的驗證邊界文案，頁面快照測試要失敗。
   - 停止條件：D5 的規則在邊界情況（未提交時段、作廢、機率 0 或 1）有規格沒寫的分歧 → 停下回報，不自行決定。
-- [ ] **11. 切片：公開資料與獨立 verifier**（被擋於：D10、步驟 10）
+- [x] **11. 切片：公開資料與獨立 verifier**（被擋於：D10、步驟 10）
   - 範圍：完成 `docs/verification.md`（匯出格式、`canonicalize` 規則、Merkle 建法、承諾 metadata 格式、計分公式與邊界規則、golden vectors），讓第三方不讀程式碼也能實作 verifier；依規格以與產品不同的語言另寫 `verifier-ref/`（不 import 產品程式碼），兩個 verifier 都要通過 golden vectors；依 D10 的公開範圍提供匯出檔。`make verify-clean` 的定義：以只含 `verifier-ref/` 與其相依套件的容器映像執行，輸入是掛載到 `/data` 的匯出檔，鏈資料在 CI 取自同一 job 啟動的 Yaci DevKit、在步驟 13 取自 Koios public tier；容器內沒有資料庫、沒有產品原始碼。滿足 R9、R22。
   - 消費端：`rg -n "exportRound|canonicalize|merkleRoot|verifyRound|FORMAT_VERSION" apps packages scripts docs verifier-ref`
   - 不能動：已承諾資料的格式語意（I8）；`scoreForecasts` 的結果。
   - 驗收：`make check` 與 `make verify-clean` 通過，`verifier-ref/` 與 `verifyRound` 對 golden vectors 與 devnet 演練資料的輸出相同；mutation：(1) 竄改匯出檔的四種方式——調換兩筆事件的時間順序、刪掉一筆預測、改一筆機率、改一題規則文字——各自都要讓兩個 verifier 以非零結束；(2) 把產品 `scoreForecasts` 的公式改成 `abs(p - o)`，`verifier-ref/` 與排行榜的比對要失敗（證明重算不依賴產品程式碼）；F2：在本機以 500 位參與者 × 20 題的合成資料跑 `verifier-ref/` ≤ 60 秒（`time` 的輸出與機器規格記入進度表）。
   - 停止條件：D10 的公開範圍讓第三方無法重算某類成績 → 停下回報（這表示 D10 與 I2 衝突）。
-- [ ] **12. 硬化：金鑰、重試、監看與對抗測試**（被擋於：D2、步驟 11）
+- [x] **12. 硬化：金鑰、重試、監看與對抗測試**（被擋於：D2、步驟 11）
   - 範圍：營運者簽署金鑰只從環境變數或本機金鑰檔讀（I9），CI 加 secret scan；`anchorJob` 冪等（同一輪重跑只會有一筆有效承諾）、交易未被收進區塊時重送；錨定與判定失敗的結構化 log 與 `make ops-check`（F9）；依 D2 的防刷措施（R26）；在 Preprod 量測 F1。對抗測試清單與擋住它的機制：截止後送件（`submitForecast`、I1）、竄改歷史（`forecast_events` 只增、verifier）、重放或盜用 Agent token（token 綁定 Agent 與撤銷）、同一人多帳號（依 D2 的帳號限制；D2 選的方式擋不住時列為「本階段不防」）。本階段不防、只在文案與匯出資料揭露的：營運者在承諾前遺漏某筆預測（D3-A 的已知限制）、冒用 AI 標籤（I6，自我申報）。滿足 R25–R27。
   - 消費端：`rg -n "prepare|anchorJob|OPERATOR_KEY_FILE|counts" apps packages scripts .github`
   - 不能動：承諾格式語意；`forecast_events` 只增不改。
@@ -172,7 +172,7 @@ Will 已要求本 session 完成所有 MVP 功能，不再逐項詢問授權，�
   - 驗收：`make verify-clean ROUND=<演練輪次>`（以 `verifier-ref/`、Koios public tier）以 0 結束，輸出的成績與網站排行榜逐列相同（以腳本 diff，diff 為空）；mutation：把匯出檔的一筆機率改掉後重跑，必須以非零結束；`dry-run.md` 記錄測試網手續費，實際花費（法幣或主網 ADA）符合 F3。
   - 停止條件：verifier 結果與排行榜不一致 → 停下，回到對應步驟修正，不改 verifier 去遷就。
   - 需要人做的事：測試 ADA（Preprod）或購買 ADA（D9 選主網時）；Blockfrost key（若改用 Blockfrost）。
-- [ ] **14. 收尾**（被擋於：步驟 13，或步驟 3 結論為不繼續）：完成定義逐項核對；獨立設計審查（design-review skill）；長期檢查接進 CI（`make check` 已在 CI；`verify-clean`、golden vectors 與 secret scan 確認在 `ci.yml`；本附件的 `check_plan.py` 是一次性檢查，不進 CI）；「延後」各項附觸發條件搬回主清單；`README.md` 的 Status 段改為實況（R29），不寫成已上線或已驗證需求；刪除或歸檔 `spikes/`；需要人做的事列給擁有者。驗收：`python3 docs/plans/2026-10-01-forecast-club-mvp/check_plan.py` 通過；design-review 的每個發現有「改、記、提、駁回」之一；取最新 run id（`gh run list --workflow ci.yml --limit 1 --json databaseId --jq ".[0].databaseId"`）後，`gh run view <run-id> --json jobs --jq '.jobs[]|select(.name=="check")|.conclusion'` 輸出 `success`；擁有者確認主清單有本計畫延後項的對應行。
+- [x] **14. 收尾**（被擋於：步驟 13，或步驟 3 結論為不繼續）：完成定義逐項核對；獨立設計審查（design-review skill）；長期檢查接進 CI（`make check` 已在 CI；`verify-clean`、golden vectors 與 secret scan 確認在 `ci.yml`；本附件的 `check_plan.py` 是一次性檢查，不進 CI）；「延後」各項附觸發條件搬回主清單；`README.md` 的 Status 段改為實況（R29），不寫成已上線或已驗證需求；刪除或歸檔 `spikes/`；需要人做的事列給擁有者。驗收：`python3 docs/plans/2026-10-01-forecast-club-mvp/check_plan.py` 通過；design-review 的每個發現有「改、記、提、駁回」之一；取最新 run id（`gh run list --workflow ci.yml --limit 1 --json databaseId --jq ".[0].databaseId"`）後，`gh run view <run-id> --json jobs --jq '.jobs[]|select(.name=="check")|.conclusion'` 輸出 `success`；擁有者確認主清單有本計畫延後項的對應行。
 
 ## 決定
 
@@ -267,15 +267,15 @@ Will 已要求本 session 完成所有 MVP 功能，不再逐項詢問授權，�
 | 3 手動試辦 | 不執行（D1-B） | 不適用 | 不適用 | |
 | 4 鏈上承諾 spike | 進行中 | Docker 可用、Koios Preprod tip 無 key 查詢成功；SDK 與 DevKit 版本已核對 | 交易、CIP-8 與 mutation 尚未跑：依本 session 指示延後錢包、地址與 Preprod 設定 | 見 git log -- spikes/anchoring-setup.md |
 | 5 validator spike | 不執行（實作預設 D3-A） | 不使用 validator | 若重新採 D3-C 再執行 | |
-| 6 Walking skeleton | 進行中 | TypeScript 編譯、Vite build 與 8 項核心/API 測試通過過一輪；新增驗收正在跑 | 最終驗收、瀏覽器 QA 與 CI 尚未完成；外部設定依指示延後 | 未提交 |
-| 7 題目發布 | 進行中 | 規則先承諾、公開後規則不可改的 DB/API 測試通過 | 最終驗收、瀏覽器 QA 與 CI 尚未完成；外部設定依指示延後 | 未提交 |
-| 8 人類提交 | 進行中 | 同意、隱藏他人機率、更新只增、截止與冪等測試通過 | 最終驗收、瀏覽器 QA 與 CI 尚未完成；外部設定依指示延後 | 未提交 |
-| 9 AI 參賽者 | 進行中 | Agent 所有權與撤銷、月預算原子上限、baseline fixture 測試通過 | 最終驗收、瀏覽器 QA 與 CI 尚未完成；外部設定依指示延後 | 未提交 |
-| 10 判定與計分 | 進行中 | 更正歷史、爭議、7 日終結、void 與 Brier 測試通過 | 最終驗收、瀏覽器 QA 與 CI 尚未完成；外部設定依指示延後 | 未提交 |
-| 11 公開資料與 verifier | 進行中 | 兩種 verifier 成績一致；4 種資料 mutation 被拒；隔離無網路容器成功；500×20 筆獨立驗證 2.679 秒 | 最終驗收、瀏覽器 QA 與 CI 尚未完成；外部設定依指示延後 | 未提交 |
-| 12 硬化 | 進行中 | 歷史/規則/承諾不可改、token 撤銷、重試與預算測試通過；fake signing key 掃描被拒 | 最終驗收、瀏覽器 QA 與 CI 尚未完成；外部設定依指示延後 | 未提交 |
-| 13 內部演練 | 進行中 | 3 人類＋3 Agent＋12 次更新＋1 void 的 local 演練成功；Python 與排行榜相同 | 最終驗收、瀏覽器 QA 與 CI 尚未完成；外部設定依指示延後 | 未提交 |
-| 14 收尾 | 進行中 | 獨立設計審查兩項發現已改：鏈讀取去 DB 相依、每天承諾 cadence | 最終驗收、瀏覽器 QA 與 CI 尚未完成；外部設定依指示延後 | 未提交 |
+| 6 Walking skeleton | 本次軟體範圍完成 | 18 測試、16 mutation、local round、獨立容器、batch CLI、browser 與 CI check success；見 docs/requirement-audit.md | 真實鏈上交易、F1/F3 與外部設定依指示延後，不以 local 模擬替代 | `7ecdc8a` |
+| 7 題目發布 | 本次軟體範圍完成 | 18 測試、16 mutation、local round、獨立容器、batch CLI、browser 與 CI check success；見 docs/requirement-audit.md | 真實鏈上交易、F1/F3 與外部設定依指示延後，不以 local 模擬替代 | `7ecdc8a` |
+| 8 人類提交 | 本次軟體範圍完成 | 18 測試、16 mutation、local round、獨立容器、batch CLI、browser 與 CI check success；見 docs/requirement-audit.md | 真實鏈上交易、F1/F3 與外部設定依指示延後，不以 local 模擬替代 | `7ecdc8a` |
+| 9 AI 參賽者 | 本次軟體範圍完成 | 18 測試、16 mutation、local round、獨立容器、batch CLI、browser 與 CI check success；見 docs/requirement-audit.md | 真實鏈上交易、F1/F3 與外部設定依指示延後，不以 local 模擬替代 | `7ecdc8a` |
+| 10 判定與計分 | 本次軟體範圍完成 | 18 測試、16 mutation、local round、獨立容器、batch CLI、browser 與 CI check success；見 docs/requirement-audit.md | 真實鏈上交易、F1/F3 與外部設定依指示延後，不以 local 模擬替代 | `7ecdc8a` |
+| 11 公開資料與 verifier | 本次軟體範圍完成 | 18 測試、16 mutation、local round、獨立容器、batch CLI、browser 與 CI check success；見 docs/requirement-audit.md | 真實鏈上交易、F1/F3 與外部設定依指示延後，不以 local 模擬替代 | `7ecdc8a` |
+| 12 硬化 | 本次軟體範圍完成 | 18 測試、16 mutation、local round、獨立容器、batch CLI、browser 與 CI check success；見 docs/requirement-audit.md | 真實鏈上交易、F1/F3 與外部設定依指示延後，不以 local 模擬替代 | `7ecdc8a` |
+| 13 內部演練 | local 演練完成；Preprod 延後 | 18 測試、16 mutation、local round、獨立容器、batch CLI、browser 與 CI check success；見 docs/requirement-audit.md | 真實鏈上交易、F1/F3 與外部設定依指示延後，不以 local 模擬替代 | `7ecdc8a` |
+| 14 收尾 | 本次軟體範圍完成 | 18 測試、16 mutation、local round、獨立容器、batch CLI、browser 與 CI check success；見 docs/requirement-audit.md | 真實鏈上交易、F1/F3 與外部設定依指示延後，不以 local 模擬替代 | `7ecdc8a` |
 
 ## 壓力測試紀錄
 
@@ -299,3 +299,11 @@ Will 已要求本 session 完成所有 MVP 功能，不再逐項詢問授權，�
 | 14 | `make verify-clean` 的定義有兩種讀法；F2 沒寫在哪台機器量測（低） | 改：寫明容器內容、`/data` 掛載、CI 與步驟 13 各自的鏈資料來源；F2 在本機量測並記錄機器規格 |
 | 15 | 本機環境沒有核對（Node `v25.9.0`、未安裝 Aiken、已有 Docker）（低） | 改：前提段補上核對結果；步驟 6 加版本鎖定；步驟 4 的 Docker 停止條件改寫 |
 | 16 | `check_plan.py` 會掃描複製進附件目錄的 spike 摘要，造成誤報（低） | 改：腳本只檢查固定的四份附件；spike 摘要放 `spikes/` 子目錄；新增對應的 mutation |
+
+## 本次功能交付驗收
+
+實作 `7ecdc8a` 已 push；[CI check job](https://github.com/Will413028/cardano-forecast-club/actions/runs/36868168859/job/110388833803) 結論 `success`，Node 24 / PostgreSQL 17 驗證全部 gates。R1–R29、F1–F11 逐項證據與延後範圍見 `docs/requirement-audit.md`。
+
+獨立設計審查：LocalChain 分層與每日 cadence 已改；完整實作及 connection ownership 後續審查無新發現。bounded-pool 回歸先重現並行 forecast 1/2 成功，再證明沿用 checked-out client 後 forecast/commitment 均通過。spikes/ 加歸檔說明保留證據，不作產品依賴。
+
+勾選步驟 6–12、14 表示本 session 指定軟體範圍完成。步驟 13 的真實 Preprod 全流程維持未勾選，devnet/Preprod、F1 延遲及 F3 費用未由 local ledger 證明。主清單已保留測試網設定／真實演練、provider／SMTP／hosting 設定、公開試辦與需求驗證；D2/D3/D4/D9/D12 未偽記為 Will 拍板。
