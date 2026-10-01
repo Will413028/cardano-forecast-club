@@ -1,0 +1,24 @@
+{
+  "golang/go": {
+    "url": "https://go.dev/doc/devel/release",
+    "records": [
+      {"version": "1.27.0", "date": "2026-08-19"},
+      {"version": "1.27.1", "date": "2026-09-01"},
+      {"version": "1.26.6", "date": "2026-08-13"},
+      {"version": "1.26.7", "date": "2026-08-19"},
+      {"version": "1.26.8", "date": "2026-09-01"},
+      {"version": "1.25.13", "date": "2026-08-13"},
+      {"version": "1.25.14", "date": "2026-08-19"}
+    ]
+  },
+  "python/cpython": {
+    "url": "https://www.python.org/downloads/",
+    "records": [
+      {"version": "3.14.8", "date": "2026-09-30"},
+      {"version": "3.13.16", "date": "2026-09-30"},
+      {"version": "3.12.14", "date": "2026-08-12"},
+      {"version": "3.12.15", "date": "2026-09-30"},
+      {"version": "3.11.16", "date": "2026-08-12"}
+    ]
+  }
+}

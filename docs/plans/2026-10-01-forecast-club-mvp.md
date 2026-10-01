@@ -35,7 +35,7 @@
 - 介面語言：英文，文案集中存放，之後可加中文（S10 接受英文或中英雙語；預設（可推翻））。
 - 網頁 session 參數依 OWASP Session Management Cheat Sheet（`nfr.md` F8、E12；預設（可推翻））。
 - 費用量級：一筆約 300 bytes 的承諾交易約 0.17 ADA（E2 的公式估算，2026-10-01；未確認，步驟 4 量測）。
-- 自動判定的資料源：GitHub 未驗證 API 的 60 requests/小時足以支撐每週 ≤ 20 題的自動判定（E10，2026-10-01；未確認，步驟 1 驗證）。
+- 自動判定的資料源：步驟 1 的 32 題 GitHub Releases 樣本每題獨立判定需 1 request；每週 ≤20 題、截止後查一次的請求量可容納於 60 requests/小時，但額度按 IP 共用，不涵蓋持續輪詢（2026-10-01，見附件 spikes/question-resolution.md）。
 
 **驗收基線：** 無產品基線。初始 commit `82112c6` 沒有可執行的產品檢查（`README.md`：「There is no runnable scaffold or verified development command yet.」）。第一個建立檢查的是步驟 6；步驟 1–5 是 spike 與試辦，驗收是附件產物的機械檢查。
 
@@ -81,7 +81,7 @@
   - 驗收：`git log --oneline` 至少一筆；`git ls-files docs/plans/` 列出計畫檔與四份附件；`python3 docs/plans/2026-10-01-forecast-club-mvp/check_plan.py` 通過；`git check-ignore pilot/raw/x` 有輸出。mutation：把計畫中任一步驟的「驗收」欄位刪掉，`check_plan.py` 要失敗（附件已記錄的 8 種 mutation 任選一種重跑）。
   - 停止條件：擁有者未授權 commit 或 push → 停下等待。
   - 需要人做的事：初始 commit 與 push；建立本機個人脈絡檔的主清單指向，並在主清單加一行。
-- [ ] **1. Spike：題目與判定來源的可行性**（被擋於：D1（選 A 或 B）、步驟 0）
+- [x] **1. Spike：題目與判定來源的可行性**（被擋於：D1（選 A 或 B）、步驟 0）
   - 範圍：回溯過去 8 週，寫 ≥ 30 題「短週期、可依公開來源判定」的科技題（例如開源專案是否在某日前發布新版本、套件 registry 是否出現某版本），每題寫判定規則與來源，再對照實際結果判定一次：可由公開 API 自動判定的用腳本（GitHub 未驗證 API，不帶 token）、其餘人工判定並記錄模糊之處。產出 `spikes/question-resolution.csv`（欄位：`id,question,rule,source_url,horizon_days,method,outcome,ambiguous,notes`）與摘要 `spikes/question-resolution.md`（自動判定比例、模糊比例、每題判定所需 API 請求數），摘要複製到本計畫附件的 `spikes/` 子目錄。
   - 消費端：無（拋棄式 spike，不產生產品介面）
   - 不能動：`README.md`、`AGENTS.md` 的範圍敘述。
@@ -258,7 +258,7 @@
 | 步驟 | 狀態 | 已跑的驗收 | 未跑的驗收與原因 | commit |
 |---|---|---|---|---|
 | 0 前置 | 完成 | 初始 commit `82112c6`；計畫檢查通過；缺少驗收欄位的 mutation 被拒；raw 與本機金鑰 ignore 生效；主清單指向已建立 | 無 | `82112c6`；計畫提交見 git log |
-| 1 題目與判定來源 spike | 未開始 | | | |
+| 1 題目與判定來源 spike | 完成 | 40 題欄位檢查；32/40 自動、0/40 模糊、1 request/自動題重算；時間邊界與 draft/prerelease fixture 通過；摘要已複製到附件 | 無（窄樣本的限制見摘要） | 見 git log -- spikes/ |
 | 2 AI 參賽者成本 spike | 未開始 | | | |
 | 3 手動試辦 | 不執行（D1-B） | 不適用 | 不適用 | |
 | 4 鏈上承諾 spike | 未開始 | | | |
