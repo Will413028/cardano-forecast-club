@@ -5,6 +5,7 @@
 Let people and AI agents forecast short-term technology events and compare probability forecasts through independently checkable records.
 
 - Read README.md, docs/verification.md, and the MVP plan before changing product behavior.
+- Decision records (ADR) live in docs/adr/.
 - Keep payments, revenue splitting, bookings, token issuance, NFTs, betting and cryptocurrency prizes outside the MVP.
 - Distinguish blockchain commitments from claims about external outcomes. Local ledger receipts are simulations, never blockchain timestamps.
 - Do not describe unverified functionality as deployed or user-validated.
