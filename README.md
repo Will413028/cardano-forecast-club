@@ -29,6 +29,10 @@ make verify-clean
 
 `make check` runs signing-secret scanning, TypeScript, database/API tests, independent golden vectors and the web build. `make e2e` runs a labelled synthetic round in an isolated database schema and writes `var/round.json` and `var/ledger.json`. `make verify-clean` verifies those files inside a read-only, network-disabled container containing only Python and the reference verifier. Synthetic performance fixtures are available through `python3 verifier-ref/benchmark.py`.
 
+## Deploy
+
+`deploy/compose.prod.yaml` runs the app, PostgreSQL and a Cloudflare Tunnel connector on one host; no host ports are published, and `TRUST_PROXY=uniquelocal` lets rate limits key on the forwarded client address. Values are listed in `.env.production.example`. `scripts/deploy-wizard.sh` walks through domain, Resend SMTP, tunnel and host setup, then deploys. Local chain mode stays a labelled simulation until Preprod wallet setup.
+
 ## Experience
 
 - Operators publish binary GitHub Releases questions with fixed source windows, tag patterns and deadlines. Rules are committed before submissions open.
