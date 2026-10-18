@@ -35,6 +35,7 @@ export function createApp(club = new Club()) {
     next();
   });
   const counts = new Map<string, { at: number; n: number }>();
+  const linkCounts = new Map<string, { at: number; n: number }>();
   app.use("/api", async (req, res, next) => {
     try {
       const key = req.ip ?? "unknown";
@@ -132,16 +133,44 @@ export function createApp(club = new Club()) {
     const { email, nickname } = z
       .object({ email: z.email(), nickname: z.string().min(2).max(40) })
       .parse(req.body);
+    const now = Date.now();
+    const ip = req.ip ?? "unknown";
+    if (linkCounts.size > 10000)
+      for (const [k, v] of linkCounts)
+        if (now - v.at > 3600000) linkCounts.delete(k);
+    const sent = linkCounts.get(ip);
+    const v = sent && now - sent.at < 3600000 ? sent : { at: now, n: 0 };
+    v.n++;
+    linkCounts.set(ip, v);
+    requireValue(v.n <= 10, 429, "Too many sign-in requests; try later");
     const token = secret();
-    await pool.query(
-      "INSERT INTO login_links(hash,email,nickname,expires_at) VALUES($1,$2,$3,$4)",
-      [
-        sha256(token),
-        email.toLowerCase(),
-        nickname,
-        new Date(Date.now() + 15 * 60000),
-      ],
-    );
+    await transaction(async (c) => {
+      await c.query("SELECT pg_advisory_xact_lock(hashtext($1))", [
+        "login:" + email.toLowerCase(),
+      ]);
+      await c.query(
+        "DELETE FROM login_links WHERE email=$1 AND expires_at<=now()",
+        [email.toLowerCase()],
+      );
+      const open = await c.query(
+        "SELECT count(*)::int AS n FROM login_links WHERE email=$1",
+        [email.toLowerCase()],
+      );
+      requireValue(
+        open.rows[0].n < 3,
+        429,
+        "Too many unused sign-in links; check your inbox",
+      );
+      await c.query(
+        "INSERT INTO login_links(hash,email,nickname,expires_at) VALUES($1,$2,$3,$4)",
+        [
+          sha256(token),
+          email.toLowerCase(),
+          nickname,
+          new Date(now + 15 * 60000),
+        ],
+      );
+    });
     const link = `${origin}/?login=${token}`;
     if (production) {
       const { default: mailer } = await import("nodemailer");
