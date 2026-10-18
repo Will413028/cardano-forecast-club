@@ -1,0 +1,40 @@
+# Run from the repository root:
+#   docker compose --env-file .env.production -f deploy/compose.prod.yaml up -d --build
+# No host ports are published; cloudflared is the only ingress.
+name: forecast-club-prod
+services:
+  app:
+    build: ..
+    restart: unless-stopped
+    environment:
+      PUBLIC_ORIGIN: ${PUBLIC_ORIGIN:?}
+      SMTP_URL: ${SMTP_URL:?}
+      MAIL_FROM: ${MAIL_FROM:?}
+      ADMIN_EMAILS: ${ADMIN_EMAILS:?}
+      CHAIN_MODE: ${CHAIN_MODE:-local}
+      DATABASE_URL: postgres://forecast:${POSTGRES_PASSWORD:?}@db:5432/forecast
+      TRUST_PROXY: uniquelocal
+    depends_on:
+      db: { condition: service_healthy }
+  db:
+    image: postgres:17-alpine
+    restart: unless-stopped
+    environment:
+      POSTGRES_DB: forecast
+      POSTGRES_USER: forecast
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:?}
+    volumes: ["db:/var/lib/postgresql/data"]
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U forecast"]
+      interval: 2s
+      timeout: 2s
+      retries: 30
+  tunnel:
+    image: cloudflare/cloudflared:2025.8.1
+    restart: unless-stopped
+    command: tunnel --no-autoupdate run
+    environment:
+      TUNNEL_TOKEN: ${TUNNEL_TOKEN:?}
+    depends_on: [app]
+volumes:
+  db:

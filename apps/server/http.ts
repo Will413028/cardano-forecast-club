@@ -17,6 +17,8 @@ const secret = () => randomBytes(32).toString("hex");
 export function createApp(club = new Club()) {
   const app = express();
   app.disable("x-powered-by");
+  // Only set when every request arrives through the proxy (e.g. cloudflared on a private network).
+  if (process.env.TRUST_PROXY) app.set("trust proxy", process.env.TRUST_PROXY);
   app.use(express.json({ limit: "128kb" }));
   const production = process.env.NODE_ENV === "production";
   const origin = process.env.PUBLIC_ORIGIN ?? "http://127.0.0.1:3318";

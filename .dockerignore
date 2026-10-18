@@ -1,0 +1,12 @@
+.git
+node_modules
+dist
+var
+.env
+.env.*
+!.env.example
+AGENTS.local.md
+pilot/raw
+spikes/**/keys
+playwright-report
+test-results
